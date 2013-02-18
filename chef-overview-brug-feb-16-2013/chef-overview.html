@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Chef Overview Presentation</title>
+
+    <meta name="description" content="A presentation - giving an overview of chef and how to use it for provisioning servers">
+    <meta name="author" content="Deepak Kannan">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+    <link rel="stylesheet" href="css/custom.css">
+    
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+	<script src="lib/js/html5shiv.js"></script>
+	<![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+	<section>
+	  <h1>Chef</h1>
+	  <h4>How to create chef cookbooks for provisioning servers</h4>
+	  
+          <p>
+	    <small>by <a href="https://github.com/deepak">Deepak Kannan</a></small>
+	  </p>          
+	</section>
+
+	<section>
+	  <h2>What is Chef</h2>
+
+          <blockquote cite="https://www.opscode.com/">
+            Chef is an open-source system integration framework built specifically for automating the cloud.
+            - opscode
+          </blockquote>
+
+	</section>
+
+        <section>
+	  <h2>What is Chef</h2>
+         
+          <ol>
+            <li>DSL</li>
+            <li>Library - as client is pure ruby</li>
+            <li>Opensource</li>
+            <li>Community</li>
+          </ol>
+	</section>
+
+        <section>
+	  <section>
+            <h2>Why Chef</h2>
+          </section>
+          
+          <section>
+            Community of cookbooks - learn and leverage the community
+	    <p> 
+          </section>
+
+          <section>
+            Automate your infrastructure using the framework provided
+	  </section>
+
+          <section>
+            Document your infrastructure by writing it down in scripts
+	  </section>
+
+          <section>
+            The framework provides a way to structure and write
+            scripts. common library to install packages, upload files, render a template etc. Attributes which can be set. System settings via ohai
+	  </section>
+
+          <section>
+            <ul>
+              <li>
+                enforcing idempotence and convergence to handle indeterminate environment. let it crash and run again
+              </li>
+
+              <li>
+                search and have one source of truth for your entire infrastructure. via chef server search
+              </li>
+
+              <li>
+                manage your infrastructure like code. source control,
+                code review, community libraries and tests.
+              </li>
+
+              <li>
+                A DSL for specifying your infrastructure. It is an abstraction. runs
+                on ubuntu, centos and others
+              </li>
+
+              <li>
+                ohai. ask your server for its state. returns a standard JSON
+              </li>
+            </ul>
+            
+	  </section>
+        </section>
+        
+        <section>
+          <h2>Terminology</h2>
+        </section>
+
+        <section>
+          Nodes: the server which is to be configured
+        </section>
+
+        <section>
+          Cookbooks: the script which specifies how the server is to be configured
+        </section>
+        
+        <section>
+          Chef Solo: the program which actually configures the
+          server as per the cookbooks. Different from chef-client
+          because it does not talk to a Chef-server 
+        </section>
+
+        <section>
+          Roles: A way to group cookbooks together. These are the boxes in your boxy architecture
+          diagram. eg. ruby role, postgres-database role
+        </section>
+        
+        <section>
+          Run list: list of cookbooks which should execute on a node
+        </section>
+        
+        <section>
+          others like Attributes, Resources, Databags
+        </section>
+
+        <section>
+          How to start
+        </section>
+
+        <section>
+          Create a VM using Veewee and Vagrant
+        </section>
+
+        <section>
+          <pre>
+            <code contenteditable>
+  vagrant basebox define ruby193 ubuntu-12.04.1-server-amd64
+  # add iso and run. can take an hour or so
+  vagrant basebox build 'ruby193'
+  vagrant basebox validate 'ruby193' 
+
+  vagrant box add 'ruby193' 'ruby193.box'
+              
+  vagrant init 'ruby193' # creates a Vagrantfile
+  vagrant up
+  vagrant ssh
+            </code>
+          </pre>
+        </section>
+        
+        <section>
+          We will use Vagrant on local. On production install Chef with Omnibus
+        </section>
+
+        <section>
+          Now what ?
+        </section>
+        
+        <section>
+          Write your own Cookbooks and run them.
+
+          The End
+        </section>
+
+        <section>
+          Not Really :-)
+          Let us look at some code
+        </section>
+        
+        <section>
+          https://github.com/deepak/chef_cookbooks
+        </section>
+
+        <section>
+          How is a cookbook organized ?
+        </section>
+
+        <section>
+          Minimally
+
+          <pre>
+            <code>
+  function init_chef_recipe() {
+    mkdir recipes templates attributes
+    touch recipes/default.rb
+    # mkdir spec # for chefspec
+    # mkdir tests # for minitest
+  }
+            </code>
+          </pre>
+        </section>
+        
+        <section>
+          Cookbooks are written in Ruby. It is Ruby not a dialect or
+          ruby-like. PURE RUBY
+        </section>
+
+        <section>
+          How are dependencies resolved ? vs puppet ?
+
+          <pre>
+            <code>
+Setting the run_list to ["role[database]", "role[ruby_webapp]"] from JSON
+Run List is [role[database], role[ruby_webapp]]
+Run List expands to [timezone, locale, packages, users, node, ruby, newrelic-sysmond, postgres, bundler, rails]
+            </code>
+          </pre>
+        </section>
+        
+        <section>
+          
+          <section>
+            <h4>Common Tasks</h4>
+            <ul>
+              <li>Install a package</li>
+              <li>Install a package via Ubuntu PPA</li>
+            </ul>
+          </section>
+          
+          <section>
+            <ul>
+              <li>Create a user</li>
+              <li>Create a group</li>
+            </ul>
+          </section>
+          
+          <section>
+            <ul>
+              <li>Install a gem. chef_gem and gem</li>
+              <li>Create Symlink (if not exist) and call a script 
+                afterwards if successful</li>
+              <li>Identify different platforms - Ubuntu, Centos etc</li>
+              <li>Organize code: break recipes out into sub-recipes and
+                call other recipes. Recipe depends on another</li>
+            </ul>
+          </section>
+          
+        </section>
+
+        <section>
+          <p>http://community.opscode.com/cookbooks (like rubygems for Chef)</p>
+          <p>http://docs.opscode.com/chef/resources.html</p>
+        </section>
+
+        <section>
+          <h4>Gotchas</h4>
+          
+          <ul>
+            <li>Am running chef as root. eyeball code you deploy</li>
+            <li>Build might fail eg. DNS server down. Expect failure
+              and run again</li>
+            <li>Chef does not track that recipe has changed. write a
+              recipe to uninstall or cleanup old packages</li>
+            <li>Chef takes a backup of files it changes but no
+              automated way to restore from backup</li>
+          </ul>
+          
+        </section>
+
+        <section>
+          <h3>Major topics skipped</h3>
+          <p>Resources and Providers (check ngixn cookbook)</p>
+          <p>Chef server. search is pretty useful</p>
+          <p>Testing Chef recipes</p>
+        </section>
+          
+	<section>
+	  <h1>FIN.</h1>
+          
+          <aside class="personal_info">
+            <p>work at milaap.org</p>
+            <p>kannan.deepak@gmail.com</p>
+            <p>https://github.com/deepak</p>
+	    <p>https://twitter.com/deepak_kannan</p>
+          </aside>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+
+    </script>
+
+    <!-- Everything below this point is unrelated to the slideshow -->
+
+    <script>
+      var _gaq = [['_setAccount', 'UA-34390292-1'], ['_trackPageview']];
+      (function(d, t) {
+      var g = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+      g.async = true;
+      g.src = ('https:' == location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g, s);
+      })(document, 'script');
+    </script>
+
+    <script>
+      if( !navigator.userAgent.match( /(iphone|android)/gi ) && !!document.querySelector ) {
+      document.querySelector( '.share-reveal' ).style.display = 'block';
+      document.querySelector( '.fork-reveal' ).style.display = 'block';
+      }
+    </script>
+
+  </body>
+  
+<!--
+tl:dr the objective of the talk is to give an overview of Chef and its ecosystem. And basics on how to create and use the community contributed cookbooks.
+
+For the Chef presentation, the contents i have planned is:
+1. why chef
+2. how to write a cookbook
+3. how to deploy and install a chef cookbook
+4. use veewee and vagrant to create a virtual machine
+5. i will share cookbooks for setting up a rails server with postgres, nginx and unicorn
+
+The shortcomings of the talk are:
+1. I will be using chef-solo and not chef-server. 
+    So it geared towards small installs where the number of servers does not dynamically change much
+2. I am not a sysadmin by trade. A talk by a sysadmin + a programmer using Chef for a long time would be better for this talk. I am not both of them.
+    I am a Ruby programmer working in a small startup who started playing with Chef a few months back to automate my infra as much as possible
+    and to learn from the community cookbooks more importantly
+3. I may touch upon testing Chef cookbooks but it is not part of my flow for creating Chef cookbooks
+-->
+
+</html>

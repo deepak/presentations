@@ -1,0 +1,65 @@
+== what is chef
+
+* DSL
+* library
+* pure ruby client
+* server is moving to Erlang and postgres
+
+Used for the same purpose as http://cfengine.com/ and puppetlabs.com
+younger than Puppet. 
+The client is pure ruby. The server is transitioning to erlang and postgres 
+
+== why chef
+
+* community of cookbooks
+  learn and leverage the community
+* automate your infrastructure using the framework provided
+* document your infrastructure by writing it down in scripts
+* the framework provides a way to structure and write scripts. common
+  library to install packages, upload files, render a template etc. Attributes which can be set. System settings via ohai
+* enforcing idempotence and convergence to handle indeterminate environment. let it crash and run again
+* search and have one source of truth for your entire infrastructure. via chef server search
+* manage your infrastructure like code. source control, code review,
+  community libraries and tests. 
+* A DSL for specifying your infrastructure. It is an abstraction. runs
+  on ubuntu, centos and others
+* ohai. ask your server for its state. returns a standard JSON
+
+== terms
+
+nodes: the server which are being provisioned
+cookbooks: the script which specifies how the server is to be configured
+chef solo: the program which actually configures the server as per
+the cookbooks
+roles
+run list
+
+== tools
+vagrantup.com
+https://github.com/jedi4ever/veewee
+http://community.opscode.com/cookbooks (like rubygems for Chef)
+http://docs.opscode.com/chef/resources.html
+
+== CODE
+show https://github.com/deepak/chef_cookbooks
+
+== usage
+facebook is using chef
+google uses puppet
+engineyard uses both
+right
+
+== links
+https://www.opscode.com/
+http://tickets.opscode.com
+http://foodfightshow.org
+http://www.opscode.com/customers/
+
+== Facebook moves to Chef
+http://www.opscode.com/press-releases/facebook-likes-opscode-and-private-chef/
+http://gigaom.com/2013/02/04/opscode-touts-facebooks-help-in-scaling-up-chef-configuration-automation-tool/
+http://foodfightshow.org/2012/06/episode-16-chef-server-with-kevin-smith.html
+http://www.opscode.com/blog/2013/02/04/chef-11-released/
+
+Rackspace uses Chef on OpenStack
+http://www.zdnet.com/rackspace-courts-openstack-newbies-with-alamo-release-7000002686/
